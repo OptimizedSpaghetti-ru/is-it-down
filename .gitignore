@@ -31,3 +31,9 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Logo icons (copyright protected)
+icons/*.png
+icons/*.jpg
+icons/*.jpeg
+icons/*.svg

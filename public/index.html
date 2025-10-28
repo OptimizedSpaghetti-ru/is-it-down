@@ -189,8 +189,8 @@
       }
 
       .stat-card.stat-checking {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        border-color: #059669;
+        background: linear-gradient(135deg, #5ab2d8 0%, #3894af 100%);
+        border-color: #057996;
       }
 
       .stat-card .text-gray-600 {
@@ -393,70 +393,70 @@
           id: "gcash",
           name: "GCash",
           url: "https://www.gcash.com/",
-          icon: "💳",
+          icon: "/icons/gcash.png",
           category: "E-Wallet",
         },
         {
           id: "maya",
           name: "Maya",
           url: "https://www.maya.ph/",
-          icon: "💳",
+          icon: "/icons/maya.png",
           category: "E-Wallet",
         },
         {
           id: "bpi",
           name: "BPI",
           url: "https://www.bpi.com.ph/",
-          icon: "🏦",
+          icon: "/icons/bpi.png",
           category: "Bank",
         },
         {
           id: "bdo",
           name: "BDO",
           url: "https://www.bdo.com.ph/",
-          icon: "🏦",
+          icon: "/icons/bdo.png",
           category: "Bank",
         },
         {
           id: "unionbank",
           name: "UnionBank",
           url: "https://www.unionbankph.com/",
-          icon: "🏦",
+          icon: "/icons/unionbank.png",
           category: "Bank",
         },
         {
           id: "shopee",
           name: "Shopee PH",
           url: "https://shopee.ph/",
-          icon: "🛒",
+          icon: "/icons/shopee.png",
           category: "E-Commerce",
         },
         {
           id: "lazada",
           name: "Lazada PH",
           url: "https://www.lazada.com.ph/",
-          icon: "🛒",
+          icon: "/icons/lazada.png",
           category: "E-Commerce",
         },
         {
           id: "pldt",
           name: "PLDT",
           url: "https://pldthome.com/",
-          icon: "📡",
+          icon: "/icons/pldt.png",
           category: "ISP",
         },
         {
           id: "globe",
           name: "Globe",
           url: "https://www.globe.com.ph/",
-          icon: "📡",
+          icon: "/icons/globe.png",
           category: "ISP",
         },
         {
           id: "converge",
           name: "Converge",
           url: "https://convergeict.com/",
-          icon: "📡",
+          icon: "/icons/converge.png",
           category: "ISP",
         },
       ];
@@ -686,8 +686,12 @@
               service.id
             }" class="service-card flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm fade-in" style="animation-delay: ${delay}s;">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-2xl">
-                  ${service.icon || service.name.charAt(0)}
+                <div class="w-12 h-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center p-2 overflow-hidden">
+                  <img src="${service.icon}" alt="${
+            service.name
+          } logo" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='${service.name.charAt(
+            0
+          )}';" />
                 </div>
                 <div>
                   <p class="font-semibold text-gray-800">${service.name}</p>

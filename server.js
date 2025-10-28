@@ -13,6 +13,9 @@ app.use(express.json());
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "public")));
 
+// Serve icons folder
+app.use("/icons", express.static(path.join(__dirname, "icons")));
+
 // List of services to check
 const SERVICES = [
   { id: "gcash", name: "GCash", url: "https://www.gcash.com/" },
