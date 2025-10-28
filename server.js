@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
@@ -8,6 +9,9 @@ const PORT = 3000;
 // Enable CORS for all origins
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, "public")));
 
 // List of services to check
 const SERVICES = [
@@ -71,6 +75,35 @@ app.get("/api/check/:serviceId", async (req, res) => {
   }
 
   const result = await checkService(service);
+  res.json(result);
+});
+
+/**
+ * API endpoint to check custom URL
+ */
+app.post("/api/check-custom", async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  // Validate URL format
+  try {
+    new URL(url);
+  } catch (e) {
+    return res.status(400).json({ error: "Invalid URL format" });
+  }
+
+  console.log(`Checking custom URL: ${url}`);
+
+  const customService = {
+    id: "custom",
+    name: url,
+    url: url,
+  };
+
+  const result = await checkService(customService);
   res.json(result);
 });
 
