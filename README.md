@@ -1,4 +1,4 @@
-# 🇵🇭 PH Service Status Checker# PH Service Status Checker
+# IS IT DOWN?
 
 A beautiful, modern web application to monitor the availability of popular Philippine online services in real-time.Monitor the availability of popular Philippine online services in real-time.
 
