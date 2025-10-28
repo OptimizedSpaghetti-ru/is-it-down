@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PH Service Status</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Use Inter font */
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #c6c9d8 0%, #a67dd0 100%);
+        min-height: 100vh;
+      }
+
+      /* Animated gradient background */
+      .gradient-bg {
+        background: linear-gradient(135deg, #401a49 0%, #322047 100%, #4f4ba2);
+        animation: gradientShift 10s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      /* Glass morphism effect */
+      .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      /* Enhanced spinner */
+      .spinner {
+        border: 3px solid rgba(102, 126, 234, 0.1);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border-left-color: #667eea;
+        animation: spin 1s ease infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Fade in animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+
+      /* Service card hover effect */
+      .service-card {
+        transition: all 0.3s ease;
+      }
+
+      .service-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Pulse animation for status badges */
+      .status-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      /* Progress bar */
+      .progress-bar {
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        animation: progress 2s ease-in-out;
+      }
+
+      @keyframes progress {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      /* Tooltip */
+      .tooltip {
+        position: relative;
+      }
+
+      .tooltip:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        font-size: 12px;
+        border-radius: 4px;
+        white-space: nowrap;
+        margin-bottom: 5px;
+        z-index: 1000;
+      }
+
+      /* Statistics cards */
+      .stat-card {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1) 0%,
+          rgba(118, 75, 162, 0.1) 100%
+        );
+        border-left: 4px solid #667eea;
+      }
+
+      /* Toast notification */
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body class="gradient-bg">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+      <!-- Header with enhanced styling -->
+      <header class="text-center mb-8 fade-in">
+        <div class="inline-block">
+          <h1
+            class="text-4xl sm:text-5xl font-bold text-white mb-2 drop-shadow-lg"
+          >
+            PH INTERNET STATUS CHECKER
+          </h1>
+          <p class="text-lg sm:text-xl text-white/90 mt-2">
+            Is it down or just me?
+          </p>
+        </div>
+      </header>
+
+      <!-- Statistics Summary Cards -->
+      <div
+        id="stats-container"
+        class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 fade-in"
+        style="animation-delay: 0.1s"
+      >
+        <div class="stat-card glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-green-600" id="stat-up">-</div>
+          <div class="text-xs text-gray-600 mt-1">UP</div>
+        </div>
+        <div class="stat-card glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-yellow-600" id="stat-slow">-</div>
+          <div class="text-xs text-gray-600 mt-1">SLOW</div>
+        </div>
+        <div class="stat-card glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-red-600" id="stat-down">-</div>
+          <div class="text-xs text-gray-600 mt-1">DOWN</div>
+        </div>
+        <div class="stat-card glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-gray-600" id="stat-checking">
+            -
+          </div>
+          <div class="text-xs text-gray-600 mt-1">CHECKING</div>
+        </div>
+      </div>
+
+      <div
+        class="glass p-6 rounded-2xl shadow-2xl fade-in"
+        style="animation-delay: 0.2s"
+      >
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4"
+        >
+          <div>
+            <h2 class="text-xl font-semibold text-gray-800">
+              Service Dashboard
+            </h2>
+            <p class="text-xs text-gray-500 mt-1">
+              Last checked:
+              <span id="last-updated" class="font-medium text-gray-700"
+                >Never</span
+              >
+            </p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button
+              id="auto-refresh-toggle"
+              class="text-xs bg-gray-100 text-gray-700 font-medium py-2 px-3 rounded-lg hover:bg-gray-200 transition-all duration-200 border border-gray-300 active:scale-95"
+              title="Toggle auto-refresh (every 60 seconds)"
+            >
+              <span id="auto-refresh-icon">⏸️</span>
+              <span id="auto-refresh-text">Auto-refresh OFF</span>
+            </button>
+            <button
+              id="refresh-button"
+              class="text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+              title="Check all services now (or press R)"
+            >
+              <span id="refresh-icon">🔄</span>
+              <span id="refresh-text">Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Service list will be injected here -->
+        <div id="status-list" class="space-y-3">
+          <!-- JS will populate this -->
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 text-xs text-gray-500">
+          <p>
+            <span class="font-semibold">💡 Note:</span> Status is checked via
+            backend server. Make sure the server is running on
+            <code
+              class="bg-gray-100 px-2 py-0.5 rounded text-purple-600 font-mono"
+              >http://localhost:3000</code
+            >
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer
+        class="text-center mt-8 text-white/80 text-sm fade-in"
+        style="animation-delay: 0.3s"
+      >
+        <p class="text-xs mt-2 opacity-75">
+          Press <kbd class="bg-white/20 px-2 py-0.5 rounded">R</kbd> to refresh
+          • <kbd class="bg-white/20 px-2 py-0.5 rounded">A</kbd> to toggle
+          auto-refresh
+        </p>
+      </footer>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+      // --- CONFIGURATION ---
+      // List of services to check.
+      // We use their main homepage or login page as the target.
+      const SERVICES = [
+        {
+          id: "gcash",
+          name: "GCash",
+          url: "https://www.gcash.com/",
+          icon: "💳",
+          category: "E-Wallet",
+        },
+        {
+          id: "maya",
+          name: "Maya",
+          url: "https://www.maya.ph/",
+          icon: "💳",
+          category: "E-Wallet",
+        },
+        {
+          id: "bpi",
+          name: "BPI",
+          url: "https://www.bpi.com.ph/",
+          icon: "🏦",
+          category: "Bank",
+        },
+        {
+          id: "bdo",
+          name: "BDO",
+          url: "https://www.bdo.com.ph/",
+          icon: "🏦",
+          category: "Bank",
+        },
+        {
+          id: "unionbank",
+          name: "UnionBank",
+          url: "https://www.unionbankph.com/",
+          icon: "🏦",
+          category: "Bank",
+        },
+        {
+          id: "shopee",
+          name: "Shopee PH",
+          url: "https://shopee.ph/",
+          icon: "🛒",
+          category: "E-Commerce",
+        },
+        {
+          id: "lazada",
+          name: "Lazada PH",
+          url: "https://www.lazada.com.ph/",
+          icon: "🛒",
+          category: "E-Commerce",
+        },
+        {
+          id: "pldt",
+          name: "PLDT",
+          url: "https://pldthome.com/",
+          icon: "📡",
+          category: "ISP",
+        },
+        {
+          id: "globe",
+          name: "Globe",
+          url: "https://www.globe.com.ph/",
+          icon: "📡",
+          category: "ISP",
+        },
+        {
+          id: "converge",
+          name: "Converge",
+          url: "https://convergeict.com/",
+          icon: "📡",
+          category: "ISP",
+        },
+      ];
+
+      // --- DOM ELEMENTS ---
+      const statusList = document.getElementById("status-list");
+      const lastUpdated = document.getElementById("last-updated");
+      const refreshButton = document.getElementById("refresh-button");
+      const refreshIcon = document.getElementById("refresh-icon");
+      const refreshText = document.getElementById("refresh-text");
+
+      // Statistics elements
+      const statUp = document.getElementById("stat-up");
+      const statSlow = document.getElementById("stat-slow");
+      const statDown = document.getElementById("stat-down");
+      const statChecking = document.getElementById("stat-checking");
+
+      // Track statistics
+      let stats = { up: 0, slow: 0, down: 0, error: 0, checking: 0 };
+
+      // --- UTILITY FUNCTIONS ---
+
+      /**
+       * Show a toast notification
+       */
+      function showToast(message, duration = 3000) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, duration);
+      }
+
+      // --- CORE FUNCTIONS ---
+
+      /**
+       * Update statistics display
+       */
+      function updateStats() {
+        statUp.textContent = stats.up;
+        statSlow.textContent = stats.slow;
+        statDown.textContent = stats.down + stats.error;
+        statChecking.textContent = stats.checking;
+      }
+
+      /**
+       * Reset statistics
+       */
+      function resetStats() {
+        stats = {
+          up: 0,
+          slow: 0,
+          down: 0,
+          error: 0,
+          checking: SERVICES.length,
+        };
+        updateStats();
+      }
+
+      /**
+       * Renders the initial list of services with loading spinners.
+       */
+      function renderInitialList() {
+        statusList.innerHTML = ""; // Clear previous results
+        let delay = 0;
+        for (const service of SERVICES) {
+          statusList.innerHTML += `
+            <div id="service-${
+              service.id
+            }" class="service-card flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm fade-in" style="animation-delay: ${delay}s;">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-2xl">
+                  ${service.icon || service.name.charAt(0)}
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800">${service.name}</p>
+                  <p class="text-xs text-gray-500">
+                    <span class="hidden sm:inline">${service.url}</span>
+                    <span class="inline sm:hidden">${service.category}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-3">
+                <span class="status-badge text-sm font-medium"></span>
+                <div class="spinner-container">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+            </div>
+          `;
+          delay += 0.05;
+        }
+      }
+
+      /**
+       * Checks the status of a single service via backend API.
+       * @param {object} service - The service object {id, name, url}
+       */
+      async function checkServiceStatus(service) {
+        const apiUrl = `http://localhost:3000/api/check/${service.id}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: "GET",
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          console.warn(`Error checking ${service.name}:`, error.message);
+
+          // Return error state
+          return {
+            service,
+            status: "ERROR",
+            duration: 0,
+            error: error.message.includes("Failed to fetch")
+              ? "Backend server not running"
+              : error.message,
+          };
+        }
+      }
+
+      /**
+       * Updates the UI for a single service based on its status.
+       * @param {object} result - The result from checkServiceStatus
+       */
+      function updateServiceUI({ service, status, duration }) {
+        const element = document.getElementById(`service-${service.id}`);
+        if (!element) return;
+
+        const badge = element.querySelector(".status-badge");
+        const spinnerContainer = element.querySelector(".spinner-container");
+
+        // Hide spinner with fade
+        spinnerContainer.style.opacity = "0";
+        setTimeout(() => (spinnerContainer.style.display = "none"), 300);
+
+        let badgeClass = "";
+        let badgeText = "";
+        let emoji = "";
+
+        // Update stats
+        stats.checking--;
+
+        switch (status) {
+          case "UP":
+            badgeClass = "bg-green-100 text-green-800 border border-green-200";
+            badgeText = "UP";
+            emoji = "✅";
+            stats.up++;
+            break;
+          case "SLOW":
+            badgeClass =
+              "bg-yellow-100 text-yellow-800 border border-yellow-200";
+            badgeText = "SLOW";
+            emoji = "⚠️";
+            stats.slow++;
+            break;
+          case "DOWN":
+            badgeClass = "bg-red-100 text-red-800 border border-red-200";
+            badgeText = "DOWN";
+            emoji = "❌";
+            stats.down++;
+            break;
+          case "ERROR":
+            badgeClass = "bg-gray-100 text-gray-800 border border-gray-200";
+            badgeText = "ERROR";
+            emoji = "⚠️";
+            stats.error++;
+            break;
+          default:
+            badgeClass = "bg-gray-100 text-gray-800 border border-gray-200";
+            badgeText = "UNKNOWN";
+            emoji = "❓";
+        }
+
+        badge.innerHTML = `
+          <span class="flex items-center gap-1">
+            <span>${emoji}</span>
+            <span>${badgeText}</span>
+            <span class="text-xs opacity-75">(${(duration / 1000).toFixed(
+              2
+            )}s)</span>
+          </span>
+        `;
+        badge.className = `status-badge text-xs font-medium px-3 py-1.5 rounded-lg ${badgeClass} fade-in`;
+
+        // Update statistics
+        updateStats();
+      }
+
+      /**
+       * Main function to orchestrate all checks.
+       */
+      async function runAllChecks() {
+        // Reset statistics
+        resetStats();
+
+        // Disable refresh button while checking
+        refreshButton.disabled = true;
+        refreshIcon.textContent = "⏳";
+        refreshText.textContent = "Checking...";
+        refreshButton.classList.add("opacity-50", "cursor-not-allowed");
+
+        renderInitialList();
+
+        const promises = SERVICES.map((service) => checkServiceStatus(service));
+
+        // Wait for all checks to complete, even if some fail
+        const results = await Promise.allSettled(promises);
+
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            updateServiceUI(result.value);
+          }
+        });
+
+        // Update timestamp
+        lastUpdated.textContent = new Date().toLocaleString("en-US", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        });
+
+        // Re-enable refresh button
+        refreshButton.disabled = false;
+        refreshIcon.textContent = "🔄";
+        refreshText.textContent = "Refresh";
+        refreshButton.classList.remove("opacity-50", "cursor-not-allowed");
+
+        // Show completion toast
+        const upCount = stats.up;
+        const downCount = stats.down + stats.error;
+        let toastMessage = `✅ Check complete: ${upCount} up`;
+        if (downCount > 0) {
+          toastMessage += `, ${downCount} down`;
+        }
+        showToast(toastMessage);
+      }
+
+      // --- AUTO-REFRESH FUNCTIONALITY ---
+      let autoRefreshInterval = null;
+      let isAutoRefreshEnabled = false;
+      const autoRefreshToggle = document.getElementById("auto-refresh-toggle");
+      const autoRefreshIcon = document.getElementById("auto-refresh-icon");
+      const autoRefreshText = document.getElementById("auto-refresh-text");
+
+      function toggleAutoRefresh() {
+        isAutoRefreshEnabled = !isAutoRefreshEnabled;
+
+        if (isAutoRefreshEnabled) {
+          autoRefreshIcon.textContent = "▶️";
+          autoRefreshText.textContent = "Auto-refresh ON";
+          autoRefreshToggle.classList.remove("bg-gray-100", "text-gray-700");
+          autoRefreshToggle.classList.add(
+            "bg-green-100",
+            "text-green-700",
+            "border-green-300"
+          );
+
+          // Refresh every 60 seconds
+          autoRefreshInterval = setInterval(runAllChecks, 60000);
+        } else {
+          autoRefreshIcon.textContent = "⏸️";
+          autoRefreshText.textContent = "Auto-refresh OFF";
+          autoRefreshToggle.classList.remove(
+            "bg-green-100",
+            "text-green-700",
+            "border-green-300"
+          );
+          autoRefreshToggle.classList.add("bg-gray-100", "text-gray-700");
+
+          if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+          }
+        }
+      }
+
+      // --- EVENT LISTENERS ---
+
+      // Run checks when the page first loads
+      document.addEventListener("DOMContentLoaded", runAllChecks);
+
+      // Run checks when the refresh button is clicked
+      refreshButton.addEventListener("click", runAllChecks);
+
+      // Toggle auto-refresh
+      autoRefreshToggle.addEventListener("click", toggleAutoRefresh);
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        // Press 'R' to refresh
+        if (e.key === "r" || e.key === "R") {
+          if (!refreshButton.disabled) {
+            runAllChecks();
+          }
+        }
+        // Press 'A' to toggle auto-refresh
+        if (e.key === "a" || e.key === "A") {
+          toggleAutoRefresh();
+        }
+      });
+
+      // Visibility change - pause auto-refresh when tab is hidden
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && isAutoRefreshEnabled) {
+          if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+          }
+        } else if (!document.hidden && isAutoRefreshEnabled) {
+          // Resume auto-refresh when tab becomes visible
+          autoRefreshInterval = setInterval(runAllChecks, 60000);
+        }
+      });
+    </script>
+  </body>
+</html>
